@@ -1,0 +1,14 @@
+document.getElementById("likert-form").addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  // Collect all answers
+  const formData = new FormData(event.target);
+  let totalScore = 0;
+  formData.forEach(value => {
+    totalScore += parseInt(value);
+  });
+
+  // Display result
+  document.getElementById("result").classList.remove("hidden");
+  document.getElementById("score").innerText = `Votre score total est : ${totalScore}`;
+});

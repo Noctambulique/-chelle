@@ -43,6 +43,10 @@
             border: none;
             border-radius: 5px;
         }
+        #results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -71,21 +75,34 @@
         <button type="button" id="submit-btn">Envoyer</button>
     </form>
 
+    <!-- Section pour afficher les résultats -->
+    <div id="results"></div>
+
     <script>
         document.getElementById('submit-btn').addEventListener('click', function() {
             const form = document.getElementById('likert-form');
             const formData = new FormData(form);
             const results = {};
+
+            // Récupérer les réponses
             for (let [key, value] of formData.entries()) {
                 results[key] = value;
             }
 
-            if (Object.keys(results).length < 2) { // Assurez-vous que toutes les questions sont répondues
+            // Vérifier si toutes les questions sont répondues
+            if (Object.keys(results).length < 2) {
                 alert("Veuillez répondre à toutes les questions.");
                 return;
             }
 
-            console.log("Résultats:", results);
+            // Afficher les résultats dans la div #results
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h2>Résultats :</h2>'; // Ajoute un titre pour les résultats
+            for (let [key, value] of Object.entries(results)) {
+                resultsDiv.innerHTML += `<p>${key}: ${value}</p>`; // Affiche chaque question et sa réponse
+            }
+
+            // Confirmation
             alert("Merci pour votre réponse !");
         });
     </script>

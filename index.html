@@ -151,7 +151,7 @@
             const orderedPhrases = [...phrasesList.querySelectorAll("li")].map(
                 (item, index) => `${index + 1}. ${item.textContent.replace("×", "").trim()}`
             ).join("\n");
-            resultBox.value = `Voici mon classement des phrases les plus effrayantes :\n${orderedPhrases}`;
+            resultBox.value = `Voici mon classement des phrases les plus angoissantes :\n${orderedPhrases}`;
             resultBox.select();
             document.execCommand("copy");
             alert("Résultats copiés dans le presse-papiers !");

@@ -30,12 +30,118 @@
         }
 
         .sortable-list li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             padding: 10px 15px;
             margin: 10px 0;
             background-color: #333333;
             border: 1px solid #444444;
             border-radius: 5px;
-           
+            cursor: grab;
+        }
+
+        .sortable-list li:active {
+            cursor: grabbing;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #5555ff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #4444dd;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #444444;
+            border-radius: 5px;
+            background-color: #2e2e2e;
+            color: white;
+            resize: none;
+        }
+
+        .invisible {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Classe les questions par ordre d'angoisse</h1>
+        <ul id="phrases" class="sortable-list">
+            <li draggable="true">Pourquoi suis-je là, si tout semble dépourvu de sens ?</li>
+            <li draggable="true">Est-ce que j'existe, au-delà des rôles que je joue ? </li>
+            <li draggable="true">Comment accepter que tout, y compris moi, ait une fin ?</li>
+            <li draggable="true">Suis-je en train de vivre ma vie, ou celle que les autres attendent de moi ?</li>
+            <li draggable="true">Comment choisir quand chaque décision ferme tant de portes ?</li>
+            <li draggable="true">Si je n’y arrive pas à faire ce qui compte, ai-je encore de la valeur ?</li>
+            <li draggable="true">Est-il possible d’être aimé pour ce que je suis vraiment ?</li>
+            <li draggable="true">À quoi bon continuer d'exister si je ne sers à rien ?</li>
+            <li draggable="true"> Qui peut réellement me comprendre quand personne ne vit ce que je ressens ?</li>
+        </ul>
+        <button id="generate-result">Générer les résultats</button>
+        <textarea id="result" readonly placeholder="Votre message apparaîtra ici."></textarea>
+    </div>
+    <script>
+        const phrasesList = document.getElementById("phrases");
+        const generateButton = document.getElementById("generate-result");
+        const resultBox = document.getElementById("result");
+
+        let draggingItem;
+
+        // Ajouter les événements de glisser-déposer
+        phrasesList.addEventListener("dragstart", (e) => {
+            draggingItem = e.target;
+            setTimeout(() => e.target.classList.add("invisible"), 0);
+        });
+
+        phrasesList.addEventListener("dragend", (e) => {
+            draggingItem = null;
+            e.target.classList.remove("invisible");
+        });
+
+        phrasesList.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            const currentItem = getDraggableAfter(phrasesList, e.clientY);
+            if (currentItem == null) {
+                phrasesList.appendChild(draggingItem);
+            } else {
+                phrasesList.insertBefore(draggingItem, currentItem);
+            }
+        });
+
+        function getDraggableAfter(container, y) {
+            const items = [...container.querySelectorAll("li:not(.invisible)")];
+            return items.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Générer les résultats
+        generateButton.addEventListener("click", () => {
+            const orderedPhrases = [...phrasesList.querySelectorAll("li")].map(
+                (item, index) => ${index + 1}. ${item.textContent}
+            ).join("\n");
+            resultBox.value = Voici mon classement des phrases les plus effrayantes :\n${orderedPhrases};
+            resultBox.select();
+            document.execCommand("copy");
+            alert("Résultats copiés dans le presse-papiers !");
+        });
+    </script>
+</body>
+</html>

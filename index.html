@@ -79,6 +79,24 @@
     <div id="results"></div>
 
     <script>
+        // Fonction pour afficher les résultats déjà enregistrés
+        function displayResults() {
+            const resultsDiv = document.getElementById('results');
+            let allResults = JSON.parse(localStorage.getItem('allResults')) || [];
+
+            resultsDiv.innerHTML = '<h2>Résultats précédents :</h2>';
+            allResults.forEach((result, index) => {
+                resultsDiv.innerHTML += `<h3>Réponse ${index + 1} :</h3>`;
+                for (let [key, value] of Object.entries(result)) {
+                    resultsDiv.innerHTML += `<p>${key}: ${value}</p>`;
+                }
+            });
+        }
+
+        // Afficher les résultats au chargement de la page
+        window.onload = displayResults;
+
+        // Gérer le clic sur le bouton d'envoi
         document.getElementById('submit-btn').addEventListener('click', function() {
             const form = document.getElementById('likert-form');
             const formData = new FormData(form);
@@ -95,16 +113,11 @@
                 return;
             }
 
-            // Afficher les résultats dans la div #results
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '<h2>Résultats :</h2>'; // Ajoute un titre pour les résultats
-            for (let [key, value] of Object.entries(results)) {
-                resultsDiv.innerHTML += `<p>${key}: ${value}</p>`; // Affiche chaque question et sa réponse
-            }
+            // Récupérer les résultats précédents depuis localStorage
+            let allResults = JSON.parse(localStorage.getItem('allResults')) || [];
 
-            // Confirmation
-            alert("Merci pour votre réponse !");
-        });
-    </script>
-</body>
-</html>
+            // Ajouter les nouveaux résultats au tableau
+            allResults.push(results);
+
+            // Sauvegarder les résultats dans localStorage
+            localStorage.setItem('allRes

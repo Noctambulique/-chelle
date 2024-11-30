@@ -33,7 +33,7 @@
             border-radius: 5px;
             padding: 5px 0;
         }
-        #submit-btn {
+        #submit-btn, #download-btn {
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
@@ -73,6 +73,7 @@
             </div>
         </div>
         <button type="button" id="submit-btn">Envoyer</button>
+        <button type="button" id="download-btn">Télécharger les réponses</button>
     </form>
 
     <!-- Section pour afficher les résultats -->
@@ -93,6 +94,18 @@
             });
         }
 
+        // Fonction pour télécharger les résultats en JSON
+        function downloadResults() {
+            const allResults = JSON.parse(localStorage.getItem('allResults')) || [];
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allResults, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "resultats_likert.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
         // Afficher les résultats au chargement de la page
         window.onload = displayResults;
 
@@ -108,7 +121,8 @@
             }
 
             // Vérifier si toutes les questions sont répondues
-            if (Object.keys(results).length < 2) {
+            const requiredQuestions = form.querySelectorAll('.question').length;
+            if (Object.keys(results).length < requiredQuestions) {
                 alert("Veuillez répondre à toutes les questions.");
                 return;
             }
@@ -120,4 +134,19 @@
             allResults.push(results);
 
             // Sauvegarder les résultats dans localStorage
-            localStorage.setItem('allRes
+            localStorage.setItem('allResults', JSON.stringify(allResults));
+
+            // Réinitialiser le formulaire
+            form.reset();
+
+            // Afficher les résultats mis à jour
+            displayResults();
+
+            alert("Merci pour vos réponses !");
+        });
+
+        // Gérer le clic sur le bouton de téléchargement
+        document.getElementById('download-btn').addEventListener('click', downloadResults);
+    </script>
+</body>
+</html>

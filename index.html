@@ -3,150 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Likert</title>
+    <title>Classement de Phrases Effrayantes</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+            padding: 0;
         }
-        .question {
+
+        .container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
             margin-bottom: 20px;
         }
-        .scale {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
+
+        .sortable-list {
+            list-style: none;
+            padding: 0;
         }
-        .scale label {
-            display: block;
-            text-align: center;
-            width: 100%;
-            cursor: pointer;
-        }
-        .scale input {
-            display: none;
-        }
-        .scale label:hover,
-        .scale input:checked + label {
-            background-color: #007BFF;
-            color: white;
+
+        .sortable-list li {
+            padding: 10px 15px;
+            margin: 10px 0;
+            background-color: #333333;
+            border: 1px solid #444444;
             border-radius: 5px;
-            padding: 5px 0;
+            cursor: grab;
         }
-        #submit-btn, #download-btn {
+
+        .sortable-list li:active {
+            cursor: grabbing;
+        }
+
+        button {
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
-            cursor: pointer;
-            background-color: #007BFF;
-            color: white;
             border: none;
             border-radius: 5px;
+            background-color: #5555ff;
+            color: white;
+            cursor: pointer;
         }
-        #results {
+
+        button:hover {
+            background-color: #4444dd;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
             margin-top: 20px;
-            font-size: 18px;
+            padding: 10px;
+            border: 1px solid #444444;
+            border-radius: 5px;
+            background-color: #2e2e2e;
+            color: white;
+            resize: none;
+        }
+
+        .invisible {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Test à Échelle de Likert</h1>
-    <form id="likert-form">
-        <div class="question">
-            <p>1. Je suis satisfait(e) de la qualité de ce projet.</p>
-            <div class="scale">
-                <input type="radio" id="q1-1" name="q1" value="1"><label for="q1-1">1</label>
-                <input type="radio" id="q1-2" name="q1" value="2"><label for="q1-2">2</label>
-                <input type="radio" id="q1-3" name="q1" value="3"><label for="q1-3">3</label>
-                <input type="radio" id="q1-4" name="q1" value="4"><label for="q1-4">4</label>
-                <input type="radio" id="q1-5" name="q1" value="5"><label for="q1-5">5</label>
-            </div>
-        </div>
-        <div class="question">
-            <p>2. Ce projet répond à mes attentes.</p>
-            <div class="scale">
-                <input type="radio" id="q2-1" name="q2" value="1"><label for="q2-1">1</label>
-                <input type="radio" id="q2-2" name="q2" value="2"><label for="q2-2">2</label>
-                <input type="radio" id="q2-3" name="q2" value="3"><label for="q2-3">3</label>
-                <input type="radio" id="q2-4" name="q2" value="4"><label for="q2-4">4</label>
-                <input type="radio" id="q2-5" name="q2" value="5"><label for="q2-5">5</label>
-            </div>
-        </div>
-        <button type="button" id="submit-btn">Envoyer</button>
-        <button type="button" id="download-btn">Télécharger les réponses</button>
-    </form>
-
-    <!-- Section pour afficher les résultats -->
-    <div id="results"></div>
-
+    <div class="container">
+        <h1>Classe les phrases de la plus effrayante à la moins terrifiante</h1>
+        <ul id="phrases" class="sortable-list">
+            <li draggable="true">Un murmure inconnu derrière vous dans une pièce vide.</li>
+            <li draggable="true">Un cri lointain au milieu de la nuit.</li>
+            <li draggable="true">Une ombre bougeant seule dans le coin de votre vision.</li>
+            <li draggable="true">Un jouet qui s'allume sans être touché.</li>
+        </ul>
+        <button id="generate-result">Générer les résultats</button>
+        <textarea id="result" readonly placeholder="Votre message apparaîtra ici."></textarea>
+    </div>
     <script>
-        // Fonction pour afficher les résultats déjà enregistrés
-        function displayResults() {
-            const resultsDiv = document.getElementById('results');
-            let allResults = JSON.parse(localStorage.getItem('allResults')) || [];
+        const phrasesList = document.getElementById("phrases");
+        const generateButton = document.getElementById("generate-result");
+        const resultBox = document.getElementById("result");
 
-            resultsDiv.innerHTML = '<h2>Résultats précédents :</h2>';
-            allResults.forEach((result, index) => {
-                resultsDiv.innerHTML += `<h3>Réponse ${index + 1} :</h3>`;
-                for (let [key, value] of Object.entries(result)) {
-                    resultsDiv.innerHTML += `<p>${key}: ${value}</p>`;
-                }
-            });
-        }
+        let draggingItem;
 
-        // Fonction pour télécharger les résultats en JSON
-        function downloadResults() {
-            const allResults = JSON.parse(localStorage.getItem('allResults')) || [];
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allResults, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "resultats_likert.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        // Afficher les résultats au chargement de la page
-        window.onload = displayResults;
-
-        // Gérer le clic sur le bouton d'envoi
-        document.getElementById('submit-btn').addEventListener('click', function() {
-            const form = document.getElementById('likert-form');
-            const formData = new FormData(form);
-            const results = {};
-
-            // Récupérer les réponses
-            for (let [key, value] of formData.entries()) {
-                results[key] = value;
-            }
-
-            // Vérifier si toutes les questions sont répondues
-            const requiredQuestions = form.querySelectorAll('.question').length;
-            if (Object.keys(results).length < requiredQuestions) {
-                alert("Veuillez répondre à toutes les questions.");
-                return;
-            }
-
-            // Récupérer les résultats précédents depuis localStorage
-            let allResults = JSON.parse(localStorage.getItem('allResults')) || [];
-
-            // Ajouter les nouveaux résultats au tableau
-            allResults.push(results);
-
-            // Sauvegarder les résultats dans localStorage
-            localStorage.setItem('allResults', JSON.stringify(allResults));
-
-            // Réinitialiser le formulaire
-            form.reset();
-
-            // Afficher les résultats mis à jour
-            displayResults();
-
-            alert("Merci pour vos réponses !");
+        // Ajouter les événements de glisser-déposer
+        phrasesList.addEventListener("dragstart", (e) => {
+            draggingItem = e.target;
+            setTimeout(() => e.target.classList.add("invisible"), 0);
         });
 
-        // Gérer le clic sur le bouton de téléchargement
-        document.getElementById('download-btn').addEventListener('click', downloadResults);
+        phrasesList.addEventListener("dragend", (e) => {
+            draggingItem = null;
+            e.target.classList.remove("invisible");
+        });
+
+        phrasesList.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            const currentItem = getDraggableAfter(phrasesList, e.clientY);
+            if (currentItem == null) {
+                phrasesList.appendChild(draggingItem);
+            } else {
+                phrasesList.insertBefore(draggingItem, currentItem);
+            }
+        });
+
+        function getDraggableAfter(container, y) {
+            const items = [...container.querySelectorAll("li:not(.invisible)")];
+            return items.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Générer les résultats
+        generateButton.addEventListener("click", () => {
+            const orderedPhrases = [...phrasesList.querySelectorAll("li")].map(
+                (item, index) => `${index + 1}. ${item.textContent}`
+            ).join("\n");
+            resultBox.value = `Voici mon classement des phrases les plus effrayantes :\n${orderedPhrases}`;
+            resultBox.select();
+            document.execCommand("copy");
+            alert("Résultats copiés dans le presse-papiers !");
+        });
     </script>
 </body>
 </html>
